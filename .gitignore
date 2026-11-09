@@ -1,0 +1,22 @@
+# ROMs, BIOS and game assets
+roms/
+*.zip
+*.7z
+*.chd
+*.iso
+*.bin
+*.rom
+# Generated files and local builds
+generated/
+build/
+build-*/
+build-tools/
+CMakeFiles/
+CMakeCache.txt
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.exe
+*.AppImage

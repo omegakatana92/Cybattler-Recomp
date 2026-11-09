@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Cybattler
+Comment=Cybattler (Jaleco, 1993) - native static recompilation
+Exec=cybattler
+Icon=cybattler
+Categories=Game;ArcadeGame;
+Terminal=false

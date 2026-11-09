@@ -1,0 +1,43 @@
+cmake_minimum_required(VERSION 3.16)
+project(cybattler C CXX)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 14)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+find_package(SDL2 REQUIRED)
+
+set(MUSASHI third_party/musashi)
+add_library(musashi STATIC ${MUSASHI}/m68kcpu.c ${MUSASHI}/m68kops.c ${MUSASHI}/m68kdasm.c ${MUSASHI}/softfloat/softfloat.c)
+target_include_directories(musashi PUBLIC ${MUSASHI})
+target_compile_options(musashi PRIVATE -w)
+
+add_library(ymfm STATIC third_party/ymfm/ymfm_opm.cpp)
+target_include_directories(ymfm PUBLIC third_party/ymfm)
+
+# generated recompiled code (tools/recomp68k.py)
+add_library(recomp STATIC generated/main_recomp.c generated/sound_recomp.c runtime/recomp_runner.c)
+target_include_directories(recomp PUBLIC runtime)
+target_link_libraries(recomp PUBLIC musashi)
+target_compile_options(recomp PRIVATE -w -O2)
+
+add_executable(cybattler WIN32
+  runtime/main.c runtime/machine.c runtime/video.c runtime/oki6295.c runtime/ym2151.cpp
+  third_party/miniz/miniz.c)
+target_include_directories(cybattler PRIVATE runtime third_party/miniz)
+target_link_libraries(cybattler PRIVATE recomp ymfm musashi)
+if(TARGET SDL2::SDL2main)
+  target_link_libraries(cybattler PRIVATE SDL2::SDL2main)
+endif()
+if(TARGET SDL2::SDL2-static AND CYB_STATIC_SDL)
+  target_link_libraries(cybattler PRIVATE SDL2::SDL2-static)
+else()
+  target_link_libraries(cybattler PRIVATE SDL2::SDL2)
+endif()
+if(MINGW)
+  target_link_options(cybattler PRIVATE -static -static-libgcc -static-libstdc++)
+endif()
+if(UNIX)
+  target_link_libraries(cybattler PRIVATE m)
+endif()
